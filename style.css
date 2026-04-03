@@ -1,13 +1,12 @@
 :root {
   /* Dark (default) */
   --bg-dark: radial-gradient(circle at top, #1a1040 0, #050510 45%, #000 100%);
-  --bg-dark-overlay1: rgba(24, 255, 255, 0.09);
-  --bg-dark-overlay2: rgba(255, 0, 255, 0.08);
+  --grid-line-cyan: rgba(24, 255, 255, 0.16);
+  --grid-line-magenta: rgba(255, 0, 255, 0.14);
 
   /* Light */
   --bg-light-color: #f5f7ff;
   --bg-light-image: url("your-light-background.jpg"); /* customize here */
-  --bg-light-overlay: rgba(255, 255, 255, 0.68);
 
   --text-dark: #f7f7ff;
   --subtext-dark: #7f8cff;
@@ -38,7 +37,7 @@ body {
   --bg-main: var(--bg-dark);
   --text: var(--text-dark);
   --subtext: var(--subtext-dark);
-  --card-bg: rgba(10, 10, 30, 0.92);
+  --card-bg: rgba(10, 10, 30, 0.9);
   --border: rgba(120, 120, 255, 0.4);
 }
 
@@ -69,39 +68,55 @@ body {
 }
 
 /* Background layers */
+
+/* base background (color or image) */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -2;
+  z-index: -3;
   background: var(--bg-main);
   background-size: cover;
   background-position: center;
-  opacity: 1;
 }
 
-/* Light mode background image overlay */
+/* in light mode, use custom image */
 body[data-theme="light"]::before {
   background-image: var(--bg-light-image);
   background-color: var(--bg-light-color);
 }
 
-/* grid / glow only in dark */
+/* neon grid only in dark mode */
 body::after {
   content: "";
   position: fixed;
-  inset: 0;
-  z-index: -1;
+  inset: -200px;
+  z-index: -2;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 10% 20%, rgba(24, 255, 255, 0.18), transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.16), transparent 60%);
-  opacity: 0.85;
+  background-image:
+    linear-gradient(var(--grid-line-cyan) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-magenta) 1px, transparent 1px);
+  background-size: 40px 40px;
+  transform: perspective(700px) rotateX(65deg);
+  transform-origin: top;
+  opacity: 0.7;
+  animation: grid-pan 24s linear infinite;
 }
 
+@keyframes grid-pan {
+  0% { transform: perspective(700px) rotateX(65deg) translateY(0); }
+  100% { transform: perspective(700px) rotateX(65deg) translateY(80px); }
+}
+
+/* remove grid in light mode for clarity */
 body[data-theme="light"]::after {
-  background: var(--bg-light-overlay);
-  opacity: 0.7;
+  content: none;
+}
+
+/* subtle glow overlay */
+body::backdrop,
+body {
+  backdrop-filter: none;
 }
 
 /* Full screen layout */
@@ -114,7 +129,7 @@ body[data-theme="light"]::after {
   backdrop-filter: blur(18px);
   background: linear-gradient(
       90deg,
-      rgba(5, 5, 20, 0.92),
+      rgba(5, 5, 20, 0.9),
       rgba(5, 5, 20, 0.7)
     );
   border-bottom: 1px solid var(--border);
@@ -125,7 +140,7 @@ body[data-theme="light"] .top-bar {
   background: linear-gradient(
       90deg,
       rgba(255, 255, 255, 0.96),
-      rgba(250, 250, 255, 0.75)
+      rgba(245, 245, 255, 0.85)
     );
 }
 
@@ -143,10 +158,6 @@ body[data-theme="light"] .brand h1 {
   text-shadow: none;
 }
 
-.brand h1 span {
-  display: inline-block;
-}
-
 .subtitle {
   font-size: 0.8rem;
   color: var(--subtext);
@@ -157,26 +168,26 @@ body[data-theme="light"] .brand h1 {
   gap: 8px;
 }
 
-/* Buttons (simpler animation) */
+/* Buttons */
 .btn {
   border-radius: var(--radius-sm);
   padding: 7px 12px;
   border: 1px solid rgba(24, 255, 255, 0.4);
-  background: rgba(5, 5, 25, 0.9);
+  background: rgba(5, 5, 25, 0.92);
   color: var(--text);
   font-size: 0.8rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.1s ease,
-    box-shadow 0.2s ease;
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.08s ease,
+    box-shadow 0.18s ease;
 }
 
 body[data-theme="light"] .btn {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .btn.primary {
@@ -186,17 +197,17 @@ body[data-theme="light"] .btn {
 }
 
 .btn.secondary {
-  border-color: rgba(255, 0, 255, 0.4);
+  border-color: rgba(255, 0, 255, 0.35);
 }
 
 .btn.danger {
   border-color: var(--danger);
-  background: rgba(255, 23, 68, 0.15);
+  background: rgba(255, 23, 68, 0.18);
 }
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 10px rgba(24, 255, 255, 0.6);
+  box-shadow: 0 0 10px rgba(24, 255, 255, 0.5);
 }
 
 .btn:active {
@@ -240,7 +251,7 @@ body[data-theme="light"] .btn {
 .chip {
   border-radius: 999px;
   border: 1px solid rgba(24, 255, 255, 0.35);
-  background: rgba(5, 5, 25, 0.95);
+  background: rgba(5, 5, 25, 0.96);
   color: var(--subtext);
   font-size: 0.75rem;
   padding: 4px 10px;
@@ -249,12 +260,12 @@ body[data-theme="light"] .btn {
 }
 
 body[data-theme="light"] .chip {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .chip-active,
 .chip:hover {
-  background: rgba(24, 255, 255, 0.2);
+  background: rgba(24, 255, 255, 0.22);
   color: var(--text);
 }
 
@@ -384,7 +395,7 @@ body[data-theme="light"] .task-item {
 }
 
 .task-main-left input[type="checkbox"] {
-  transform: scale(1.15);
+  transform: scale(1.1);
   accent-color: var(--primary);
 }
 
