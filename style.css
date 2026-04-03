@@ -1,153 +1,76 @@
-* {
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
+:root {
+  --bg: #f4f7f6;
+  --card-bg: #ffffff;
+  --text: #333;
+  --subtext: #777;
+  --primary: #4a90e2;
+  --border: #eee;
 }
+
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --card-bg: #2d2d2d;
+  --text: #f0f0f0;
+  --subtext: #aaa;
+  --border: #444;
+}
+
+* { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
 body {
   min-height: 100vh;
   margin: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  background: #f4f4f9;
+  background: var(--bg);
   padding: 40px 10px;
+  transition: background 0.3s ease;
+  color: var(--text);
 }
 
 .app {
-  background: #fff;
+  background: var(--card-bg);
   width: 100%;
-  max-width: 500px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  padding: 20px 24px 30px;
+  max-width: 450px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  padding: 24px;
+  transition: background 0.3s ease;
 }
 
-.app h1 {
-  margin: 0 0 10px;
-  font-size: 24px;
-  text-align: center;
-  color: #333;
-}
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+h1 { margin: 0; font-size: 22px; }
 
-.subtitle {
-  text-align: center;
-  font-size: 13px;
-  color: #777;
-  margin-bottom: 18px;
-}
+/* Stats & Progress */
+.stats-container { margin-bottom: 20px; }
+.progress-bar { background: var(--border); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
+#progress-fill { background: var(--primary); height: 100%; width: 0%; transition: width 0.4s ease; }
+#stats-text { font-size: 12px; color: var(--subtext); margin: 0; }
 
-form {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
+form { display: flex; gap: 10px; margin-bottom: 20px; }
+#task-input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); outline: none; }
+#add-btn { padding: 0 20px; border-radius: 8px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: bold; }
 
-#task-input {
-  flex: 1;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  outline: none;
-  transition: border 0.2s;
-}
-
-#task-input:focus {
-  border-color: #4a90e2;
-}
-
-#add-btn {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  background: #4a90e2;
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-
-#add-btn:hover {
-  background: #3a7acd;
-}
-
-.empty-msg {
-  font-size: 13px;
-  color: #999;
-  text-align: center;
-  margin-top: 10px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0 0;
-}
-
+/* Task List & Animations */
 li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #eee;
-  margin-bottom: 8px;
-  background: #fafafa;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 10px; background: var(--card-bg);
+  animation: slideIn 0.3s ease forwards;
 }
 
-.task-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.task-left input[type="checkbox"] {
-  cursor: pointer;
-}
+.task-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+.completed { text-decoration: line-through; color: var(--subtext); opacity: 0.6; }
 
-.task-text {
-  font-size: 14px;
-  color: #333;
-  word-break: break-word;
-}
+.btn { border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; margin-left: 5px; }
+.edit { background: #fff3cd; color: #856404; }
+.delete { background: #f8d7da; color: #721c24; }
+.btn-icon { background: none; border: none; font-size: 20px; cursor: pointer; }
 
-.task-text.completed {
-  text-decoration: line-through;
-  color: #aaa;
-}
-
-.actions {
-  display: flex;
-  gap: 6px;
-}
-
-.btn {
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.btn.edit {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-}
-
-.btn.edit:hover {
-  background: #ffe8a1;
-}
-
-.btn.delete {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.btn.delete:hover {
-  background: #f1b0b7;
-}
+#footer-actions { margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; text-align: right; }
+.empty-msg { text-align: center; color: var(--subtext); margin-top: 20px; }

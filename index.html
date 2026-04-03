@@ -3,29 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To‑Do List App</title>
+  <title>Modern To-Do List</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app">
-    <h1>To‑Do List</h1>
-    <p class="subtitle">Add tasks, edit or delete them. Tasks are saved in your browser.</p>
+    <div class="header-row">
+      <h1>To-Do List</h1>
+      <button id="theme-toggle" class="btn-icon" title="Toggle Dark Mode">🌙</button>
+    </div>
+    
+    <div class="stats-container">
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+      <p id="stats-text">0% completed</p>
+    </div>
 
     <form id="todo-form">
-      <input
-        type="text"
-        id="task-input"
-        placeholder="Enter a task..."
-        autocomplete="off"
-      />
+      <input type="text" id="task-input" placeholder="What needs to be done?" autocomplete="off" />
       <button type="submit" id="add-btn">Add</button>
     </form>
 
-    <p id="empty-msg" class="empty-msg">No tasks yet. Add your first one!</p>
-
     <ul id="task-list"></ul>
-  </div>
+    
+    <div id="footer-actions" style="display: none;">
+      <button id="clear-all" class="btn delete">Clear All</button>
+    </div>
 
+    <p id="empty-msg" class="empty-msg">Your list is empty. Enjoy your day! ☀️</p>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
