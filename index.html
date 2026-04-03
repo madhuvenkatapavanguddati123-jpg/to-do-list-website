@@ -3,22 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Power To-Do List</title>
+  <title>Power To-Do // Cyberpunk</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app">
     <div class="header-row">
-      <h1>Power To-Do</h1>
+      <h1><span>Power To-Do</span></h1>
       <div class="header-actions">
-        <button id="notif-btn" class="btn-icon" title="Enable Notifications">🔔</button>
-        <button id="theme-toggle" class="btn-icon">🌙</button>
+        <button id="notif-btn" class="btn-icon" title="Notification Settings">🔔</button>
+        <button id="theme-toggle" class="btn-icon" title="Toggle Theme">⚡</button>
       </div>
     </div>
-    
+
+    <div class="filters-row">
+      <button class="chip chip-active" data-filter="all">All</button>
+      <button class="chip" data-filter="today">Today</button>
+      <button class="chip" data-filter="upcoming">Upcoming</button>
+      <button class="chip" data-filter="high">High Priority</button>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Search tasks…" />
+    </div>
+
     <div class="stats-container">
       <div class="progress-bar"><div id="progress-fill"></div></div>
       <p id="stats-text">0/0 completed</p>
+      <p id="streak-text">🔥 Streak: 0 days</p>
     </div>
 
     <form id="todo-form">
@@ -37,17 +49,39 @@
           <option value="Shopping">Shopping</option>
         </select>
         <input type="datetime-local" id="date-input" />
-        <button type="submit" id="add-btn">Add Task</button>
+        <button type="submit" id="add-btn" class="btn primary">Add Task</button>
       </div>
     </form>
 
     <ul id="task-list"></ul>
-    
-    <div id="footer-actions" style="display: none;">
-      <button id="clear-all" class="btn delete">Clear All</button>
+
+    <div id="footer-actions" class="footer-actions" style="display: none;">
+      <button id="clear-all" class="btn danger">Clear All</button>
     </div>
+
     <p id="empty-msg" class="empty-msg">No tasks found. Relax! ☕</p>
+
+    <!-- Notification settings popup (frontend-only) -->
+    <div id="notif-popup" class="notif-popup hidden">
+      <h2>Notifications</h2>
+      <p>Control reminder behavior for upcoming tasks.</p>
+      <label class="toggle-row">
+        <input type="checkbox" id="toggle-deadline-reminders" checked>
+        <span>Deadline reminders</span>
+      </label>
+      <label>
+        Reminder offset:
+        <select id="reminder-offset">
+          <option value="5">5 minutes before</option>
+          <option value="10">10 minutes before</option>
+          <option value="30">30 minutes before</option>
+          <option value="60">1 hour before</option>
+        </select>
+      </label>
+      <button id="notif-close" class="btn secondary">Close</button>
+    </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
