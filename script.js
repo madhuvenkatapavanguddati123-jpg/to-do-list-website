@@ -1,74 +1,97 @@
-const form = document.getElementById('todo-form');
-const taskInput = document.getElementById('task-input');
-const taskList = document.getElementById('task-list');
-const emptyMsg = document.getElementById('empty-msg');
+let tasks = JSON.parse(localStorage.getItem('enhanced_tasks')) || [];
+
 const themeToggle = document.getElementById('theme-toggle');
-const progressFill = document.getElementById('progress-fill');
-const statsText = document.getElementById('stats-text');
-const footerActions = document.getElementById('footer-actions');
-const clearAllBtn = document.getElementById('clear-all');
+const notifBtn = document.getElementById('notif-btn');
 
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+// Notification Permission
+notifBtn.onclick = () => Notification.requestPermission().then(p => alert(p === 'granted' ? 'Notifications on!' : 'Blocked'));
 
-// Theme Management
-themeToggle.addEventListener('click', () => {
+themeToggle.onclick = () => {
   const isDark = document.body.getAttribute('data-theme') === 'dark';
   document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
   themeToggle.textContent = isDark ? '🌙' : '☀️';
-});
+};
 
 function updateUI() {
-  taskList.innerHTML = '';
-  const total = tasks.length;
-  const completed = tasks.filter(t => t.completed).length;
-  const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-
-  progressFill.style.width = `${percent}%`;
-  statsText.textContent = `${completed}/${total} tasks completed (${percent}%)`;
+  const list = document.getElementById('task-list');
+  list.innerHTML = '';
   
-  emptyMsg.style.display = total === 0 ? 'block' : 'none';
-  footerActions.style.display = total === 0 ? 'none' : 'block';
-
   tasks.forEach(task => {
     const li = document.createElement('li');
+    const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !task.completed;
+    
     li.innerHTML = `
-      <div class="task-left">
-        <input type="checkbox" ${task.completed ? 'checked' : ''}>
-        <span class="task-text ${task.completed ? 'completed' : ''}">${task.text}</span>
+      <div class="task-header">
+        <div class="task-left">
+          <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+          <span class="category-tag">[${task.category}]</span>
+          <b style="${task.completed ? 'text-decoration:line-through' : ''}">${task.text}</b>
+          <span class="badge priority-${task.priority}">${task.priority}</span>
+        </div>
+        <button class="btn delete" onclick="deleteTask(${task.id})">✕</button>
       </div>
-      <div class="actions">
-        <button class="btn edit">Edit</button>
-        <button class="btn delete">Delete</button>
+      ${task.dueDate ? `<div class="due-date" style="color:${isOverdue ? 'red' : ''}">📅 Due: ${new Date(task.dueDate).toLocaleString()}</div>` : ''}
+      
+      <div class="subtasks-container">
+        ${task.subtasks.map((st, i) => `
+          <div class="subtask-item">
+            <input type="checkbox" ${st.completed ? 'checked' : ''} onchange="toggleSubtask(${task.id}, ${i})">
+            <span style="${st.completed ? 'text-decoration:line-through' : ''}">${st.text}</span>
+          </div>
+        `).join('')}
+        <button class="btn add-sub" onclick="addSubtask(${task.id})">+ Add Subtask</button>
       </div>
     `;
-
-    // Events
-    li.querySelector('input').onclick = () => toggleTask(task.id);
-    li.querySelector('.edit').onclick = () => editTask(task.id);
-    li.querySelector('.delete').onclick = () => deleteTask(task.id);
-    
-    taskList.appendChild(li);
+    list.appendChild(li);
   });
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+
+  const total = tasks.length;
+  const done = tasks.filter(t => t.completed).length;
+  const perc = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-fill').style.width = perc + '%';
+  document.getElementById('stats-text').textContent = `${done}/${total} completed (${perc}%)`;
+  document.getElementById('empty-msg').style.display = total ? 'none' : 'block';
+  document.getElementById('footer-actions').style.display = total ? 'block' : 'none';
+  
+  localStorage.setItem('enhanced_tasks', JSON.stringify(tasks));
+  checkDeadlines();
 }
 
-function addTask(text) {
-  tasks.push({ id: Date.now(), text, completed: false });
+function addTask(e) {
+  e.preventDefault();
+  const task = {
+    id: Date.now(),
+    text: document.getElementById('task-input').value,
+    priority: document.getElementById('priority-input').value,
+    category: document.getElementById('category-input').value,
+    dueDate: document.getElementById('date-input').value,
+    completed: false,
+    subtasks: [],
+    notified: false
+  };
+  tasks.push(task);
+  e.target.reset();
   updateUI();
 }
 
 function toggleTask(id) {
-  tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+  const t = tasks.find(t => t.id === id);
+  t.completed = !t.completed;
   updateUI();
 }
 
-function editTask(id) {
-  const task = tasks.find(t => t.id === id);
-  const newText = prompt('Edit task:', task.text);
-  if (newText && newText.trim()) {
-    task.text = newText.trim();
+function addSubtask(id) {
+  const txt = prompt("Enter subtask:");
+  if (txt) {
+    tasks.find(t => t.id === id).subtasks.push({ text: txt, completed: false });
     updateUI();
   }
+}
+
+function toggleSubtask(tId, sIdx) {
+  const t = tasks.find(t => t.id === tId);
+  t.subtasks[sIdx].completed = !t.subtasks[sIdx].completed;
+  updateUI();
 }
 
 function deleteTask(id) {
@@ -76,19 +99,21 @@ function deleteTask(id) {
   updateUI();
 }
 
-clearAllBtn.onclick = () => {
-  if (confirm('Delete all tasks?')) {
-    tasks = [];
-    updateUI();
-  }
-};
+function checkDeadlines() {
+  if (Notification.permission !== 'granted') return;
+  const now = new Date().getTime();
+  tasks.forEach(t => {
+    if (t.dueDate && !t.completed && !t.notified) {
+      const due = new Date(t.dueDate).getTime();
+      if (due - now < 300000 && due - now > 0) { // 5 min warning
+        new Notification("Task Due Soon!", { body: t.text });
+        t.notified = true;
+      }
+    }
+  });
+}
 
-form.onsubmit = (e) => {
-  e.preventDefault();
-  if (taskInput.value.trim()) {
-    addTask(taskInput.value.trim());
-    taskInput.value = '';
-  }
-};
-
+document.getElementById('todo-form').onsubmit = addTask;
+document.getElementById('clear-all').onclick = () => { tasks = []; updateUI(); };
+setInterval(checkDeadlines, 30000); // Check every 30s
 updateUI();
