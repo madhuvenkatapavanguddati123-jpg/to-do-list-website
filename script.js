@@ -6,7 +6,6 @@ let reminderOffsetMinutes = 5;
 let streak = Number(localStorage.getItem('todo_streak')) || 0;
 let lastCompletionDate = localStorage.getItem('todo_lastCompletionDate') || null;
 
-// Elements
 const themeToggle = document.getElementById('theme-toggle');
 const notifBtn = document.getElementById('notif-btn');
 const taskListEl = document.getElementById('task-list');
@@ -22,29 +21,27 @@ const notifCloseBtn = document.getElementById('notif-close');
 const toggleDeadlineReminders = document.getElementById('toggle-deadline-reminders');
 const reminderOffsetSelect = document.getElementById('reminder-offset');
 
-// Apply saved theme or system preference
+/* THEME INIT & TOGGLE (uses data-theme + localStorage) [web:36][web:39] */
 (function initTheme() {
   const storedTheme = localStorage.getItem('todo_theme');
-  if (storedTheme) {
+  if (storedTheme === 'light' || storedTheme === 'dark') {
     document.body.setAttribute('data-theme', storedTheme);
-  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    document.body.setAttribute('data-theme', 'light');
   } else {
     document.body.setAttribute('data-theme', 'dark');
   }
 })();
 
 themeToggle.onclick = () => {
-  const currentTheme = document.body.getAttribute('data-theme');
-  const next = currentTheme === 'dark' ? 'light' : 'dark';
+  const current = document.body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
   document.body.setAttribute('data-theme', next);
   localStorage.setItem('todo_theme', next);
 };
 
-// Notification settings popup
+/* Notification popup */
 notifBtn.onclick = () => {
   notifPopup.classList.toggle('hidden');
-  if (Notification && Notification.permission === 'default') {
+  if (window.Notification && Notification.permission === 'default') {
     Notification.requestPermission().catch(() => {});
   }
 };
@@ -61,7 +58,7 @@ reminderOffsetSelect.onchange = (e) => {
   reminderOffsetMinutes = Number(e.target.value);
 };
 
-// Filter chips
+/* Filter chips */
 document.querySelectorAll('.chip').forEach(chip => {
   chip.addEventListener('click', () => {
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('chip-active'));
@@ -71,13 +68,13 @@ document.querySelectorAll('.chip').forEach(chip => {
   });
 });
 
-// Search
+/* Search */
 searchInput.addEventListener('input', (e) => {
   searchQuery = e.target.value.toLowerCase();
   updateUI();
 });
 
-// Form submit
+/* Form submit */
 document.getElementById('todo-form').onsubmit = (e) => {
   e.preventDefault();
   const text = document.getElementById('task-input').value.trim();
@@ -98,17 +95,17 @@ document.getElementById('todo-form').onsubmit = (e) => {
   updateUI();
 };
 
-// Clear all
+/* Clear all */
 document.getElementById('clear-all').onclick = () => {
   tasks = [];
   updateUI();
 };
 
-// Core UI update
+/* Core UI update */
 function updateUI() {
   taskListEl.innerHTML = '';
 
-  let visibleTasks = applyFilters(tasks);
+  const visibleTasks = applyFilters(tasks);
 
   visibleTasks.forEach(task => {
     const li = document.createElement('li');
@@ -126,7 +123,7 @@ function updateUI() {
           </div>
           <span class="badge priority-${task.priority}">${task.priority}</span>
         </div>
-        <button class="btn danger task-delete" data-id="${task.id}">✕</button>
+        <button class="btn danger task-delete" data-id="${task.id}">Delete</button>
       </div>
       ${task.dueDate ? `
         <div class="due-date ${isOverdue ? 'overdue' : ''}">
@@ -140,7 +137,7 @@ function updateUI() {
             <span class="subtask-text ${st.completed ? 'completed' : ''}">${st.text}</span>
           </div>
         `).join('')}
-        <button class="btn secondary add-sub" data-id="${task.id}">+ Add Subtask</button>
+        <button class="btn secondary add-sub" data-id="${task.id}">Add Subtask</button>
       </div>
     `;
     taskListEl.appendChild(li);
@@ -160,7 +157,7 @@ function updateUI() {
   attachItemListeners();
 }
 
-// Attach listeners to dynamically created elements
+/* Attach listeners to dynamic items */
 function attachItemListeners() {
   document.querySelectorAll('.task-toggle').forEach(checkbox => {
     checkbox.addEventListener('change', () => {
@@ -192,12 +189,12 @@ function attachItemListeners() {
   });
 }
 
+/* Filters */
 function applyFilters(list) {
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
 
   return list.filter(t => {
-    // search filter
     if (searchQuery) {
       const inText = t.text.toLowerCase().includes(searchQuery);
       const inCategory = t.category.toLowerCase().includes(searchQuery);
@@ -205,7 +202,6 @@ function applyFilters(list) {
       if (!inText && !inCategory && !inPriority) return false;
     }
 
-    // filter chips
     if (filterMode === 'today') {
       if (!t.dueDate) return false;
       const d = new Date(t.dueDate).toISOString().split('T')[0];
@@ -225,6 +221,7 @@ function applyFilters(list) {
   });
 }
 
+/* Task operations */
 function toggleTask(id) {
   const t = tasks.find(t => t.id === id);
   if (!t) return;
@@ -256,11 +253,11 @@ function deleteTask(id) {
   updateUI();
 }
 
-// Streak (frontend only)
-function updateStreak(doneTodayCount) {
+/* Streak logic */
+function updateStreak(doneCount) {
   const todayStr = new Date().toISOString().split('T')[0];
 
-  if (!doneTodayCount) {
+  if (!doneCount) {
     streakTextEl.textContent = `🔥 Streak: ${streak} days`;
     return;
   }
@@ -286,7 +283,7 @@ function updateStreak(doneTodayCount) {
   streakTextEl.textContent = `🔥 Streak: ${streak} days`;
 }
 
-// Deadline checks (frontend only)
+/* Deadline checks */
 function checkDeadlines() {
   if (!reminderEnabled || !window.Notification || Notification.permission !== 'granted') return;
 
@@ -307,6 +304,6 @@ function checkDeadlines() {
   localStorage.setItem('enhanced_tasks', JSON.stringify(tasks));
 }
 
-// Init
+/* Init */
 setInterval(checkDeadlines, 30000);
 updateUI();

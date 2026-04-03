@@ -3,83 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Power To-Do // Cyberpunk</title>
+  <title>Power To-Do // Neon</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
-    <div class="header-row">
+  <header class="top-bar">
+    <div class="brand">
       <h1><span>Power To-Do</span></h1>
-      <div class="header-actions">
-        <button id="notif-btn" class="btn-icon" title="Notification Settings">🔔</button>
-        <button id="theme-toggle" class="btn-icon" title="Toggle Theme">⚡</button>
+      <p class="subtitle">Cyber neon task manager</p>
+    </div>
+    <div class="top-actions">
+      <button id="notif-btn" class="btn secondary">Notifications</button>
+      <button id="theme-toggle" class="btn secondary">Toggle Theme</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="left-pane">
+      <div class="filters-row">
+        <button class="chip chip-active" data-filter="all">All</button>
+        <button class="chip" data-filter="today">Today</button>
+        <button class="chip" data-filter="upcoming">Upcoming</button>
+        <button class="chip" data-filter="high">High Priority</button>
       </div>
-    </div>
 
-    <div class="filters-row">
-      <button class="chip chip-active" data-filter="all">All</button>
-      <button class="chip" data-filter="today">Today</button>
-      <button class="chip" data-filter="upcoming">Upcoming</button>
-      <button class="chip" data-filter="high">High Priority</button>
-    </div>
-
-    <div class="search-row">
-      <input type="text" id="search-input" placeholder="Search tasks…" />
-    </div>
-
-    <div class="stats-container">
-      <div class="progress-bar"><div id="progress-fill"></div></div>
-      <p id="stats-text">0/0 completed</p>
-      <p id="streak-text">🔥 Streak: 0 days</p>
-    </div>
-
-    <form id="todo-form">
-      <div class="input-group">
-        <input type="text" id="task-input" placeholder="What needs doing?" required />
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="Search tasks…" />
       </div>
-      <div class="options-row">
-        <select id="priority-input">
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-        <select id="category-input">
-          <option value="Personal">Personal</option>
-          <option value="Work">Work</option>
-          <option value="Shopping">Shopping</option>
-        </select>
-        <input type="datetime-local" id="date-input" />
-        <button type="submit" id="add-btn" class="btn primary">Add Task</button>
+
+      <div class="stats-container">
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+        <p id="stats-text">0/0 completed</p>
+        <p id="streak-text">🔥 Streak: 0 days</p>
       </div>
-    </form>
 
-    <ul id="task-list"></ul>
+      <form id="todo-form">
+        <div class="input-group">
+          <input type="text" id="task-input" placeholder="What needs doing?" required />
+        </div>
+        <div class="options-row">
+          <select id="priority-input">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+          <select id="category-input">
+            <option value="Personal">Personal</option>
+            <option value="Work">Work</option>
+            <option value="Shopping">Shopping</option>
+          </select>
+          <input type="datetime-local" id="date-input" />
+          <button type="submit" id="add-btn" class="btn primary">Add Task</button>
+        </div>
+      </form>
+    </section>
 
-    <div id="footer-actions" class="footer-actions" style="display: none;">
-      <button id="clear-all" class="btn danger">Clear All</button>
-    </div>
+    <section class="right-pane">
+      <ul id="task-list"></ul>
+      <div id="footer-actions" class="footer-actions" style="display: none;">
+        <button id="clear-all" class="btn danger">Clear All</button>
+      </div>
+      <p id="empty-msg" class="empty-msg">No tasks found. Relax! ☕</p>
+    </section>
+  </main>
 
-    <p id="empty-msg" class="empty-msg">No tasks found. Relax! ☕</p>
-
-    <!-- Notification settings popup (frontend-only) -->
-    <div id="notif-popup" class="notif-popup hidden">
-      <h2>Notifications</h2>
-      <p>Control reminder behavior for upcoming tasks.</p>
-      <label class="toggle-row">
-        <input type="checkbox" id="toggle-deadline-reminders" checked>
-        <span>Deadline reminders</span>
-      </label>
-      <label>
-        Reminder offset:
-        <select id="reminder-offset">
-          <option value="5">5 minutes before</option>
-          <option value="10">10 minutes before</option>
-          <option value="30">30 minutes before</option>
-          <option value="60">1 hour before</option>
-        </select>
-      </label>
-      <button id="notif-close" class="btn secondary">Close</button>
-    </div>
+  <!-- Notification settings popup (frontend-only) -->
+  <div id="notif-popup" class="notif-popup hidden">
+    <h2>Notifications</h2>
+    <p>Control reminder behavior for upcoming tasks.</p>
+    <label class="toggle-row">
+      <input type="checkbox" id="toggle-deadline-reminders" checked>
+      <span>Deadline reminders</span>
+    </label>
+    <label>
+      Reminder offset:
+      <select id="reminder-offset">
+        <option value="5">5 minutes before</option>
+        <option value="10">10 minutes before</option>
+        <option value="30">30 minutes before</option>
+        <option value="60">1 hour before</option>
+      </select>
+    </label>
+    <button id="notif-close" class="btn secondary">Close</button>
   </div>
 
   <script src="script.js"></script>
